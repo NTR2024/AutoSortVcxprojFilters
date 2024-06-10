@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoSortVcxprojFilters", "AutoSortVcxprojFilters\AutoSortVcxprojFilters.csproj", "{3C5F872A-2E7C-4B0F-84F8-102460866D6F}"
 EndProject
