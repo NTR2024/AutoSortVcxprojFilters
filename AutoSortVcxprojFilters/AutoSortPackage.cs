@@ -40,10 +40,8 @@ namespace AutoSortVcxprojFilters
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
-    [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(AutoSortPackage.PackageGuidString)]
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -53,8 +51,6 @@ namespace AutoSortVcxprojFilters
         /// AutoSortPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "01a71080-33cd-4769-883b-07242c7c6c3e";
-
-        private EnvDTE.DTE m_dte;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoSortPackage"/> class.
@@ -67,14 +63,6 @@ namespace AutoSortVcxprojFilters
             // initialization is the Initialize method.
         }
 
-        public EnvDTE.Project[] GetProjects()
-        {
-            return m_dte?.Solution.Projects
-                .Cast<EnvDTE.Project>()
-                .Where(x => { return x?.Object != null; })
-                .ToArray();
-        }
-        
         #region Package Members
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -82,16 +70,13 @@ namespace AutoSortVcxprojFilters
         /// </summary>
         protected override async System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await base.InitializeAsync(cancellationToken, progress);
-
-
-            m_dte = GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE; 
+            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            
+            //Attach the OnSave event
             var runningDocumentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
             runningDocumentTable.AdviseRunningDocTableEvents(new SortFilterOnAfterSave(runningDocumentTable), out _);
+            await SortAllCommand.InitializeAsync(this);
 
-            var commandService = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
-            SortAllCommand.Initialize(this, commandService);
 
         }
         #endregion

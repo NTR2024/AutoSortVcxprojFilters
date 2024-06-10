@@ -6,6 +6,8 @@
 
 using System;
 using System.ComponentModel.Design;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 
 namespace AutoSortVcxprojFilters
@@ -28,27 +30,24 @@ namespace AutoSortVcxprojFilters
         /// <summary>
         /// VS Package that provides this command, not null.
         /// </summary>
-        private readonly AutoSortPackage package;
+        private readonly AsyncPackage package;
+
+        private EnvDTE.DTE m_dte;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SortAllCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private SortAllCommand(Package package, OleMenuCommandService commandService)
+        private SortAllCommand(AsyncPackage package, OleMenuCommandService commandService, EnvDTE.DTE dte)
         {
-            if (package == null)
-            {
-                throw new ArgumentNullException("package");
-            }
+            this.package = package ?? throw new ArgumentNullException(nameof(package));
+            commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
-            this.package = package as AutoSortPackage;
-            if (commandService != null)
-            {
-                var menuCommandID = new CommandID(CommandSet, CommandId);
-                var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-            }
+            var menuCommandID = new CommandID(CommandSet, CommandId);
+            var menuItem = new MenuCommand(this.Execute, menuCommandID);
+            commandService.AddCommand(menuItem);
+            m_dte = dte;
         }
 
         /// <summary>
@@ -61,12 +60,29 @@ namespace AutoSortVcxprojFilters
         }
 
         /// <summary>
+        /// Gets the service provider from the owner package.
+        /// </summary>
+        private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
+        {
+            get
+            {
+                return this.package;
+            }
+        }
+
+        /// <summary>
         /// Initializes the singleton instance of the command.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        public static void Initialize(Package package, OleMenuCommandService commandService)
+        public static async Task InitializeAsync(AsyncPackage package)
         {
-            Instance = new SortAllCommand(package, commandService);
+            // Switch to the main thread - the call to AddCommand in SortEdmx's constructor requires
+            // the UI thread.
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+
+            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            EnvDTE.DTE dte = await package.GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            Instance = new SortAllCommand(package, commandService, dte);
         }
 
         /// <summary>
@@ -76,10 +92,14 @@ namespace AutoSortVcxprojFilters
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+        private void Execute(object sender, EventArgs e)
         {
-            var projects = package.GetProjects();
-            if(projects != null)
+            var projects = m_dte.Solution.Projects
+               .Cast<EnvDTE.Project>()
+               .Where(x => { return x?.Object != null; })
+               .ToArray();
+
+            if (projects != null)
             {
                 foreach (var proj in projects)
                 {
