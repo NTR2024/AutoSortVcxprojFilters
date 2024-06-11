@@ -37,6 +37,7 @@ namespace AutoSortVcxprojFilters
             string fullDocumentName;
 
             // Get document name
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
             m_IVsRunningDocumentTable.GetDocumentInfo(
                 docCookie,
                 out pgrfRDTFlags,
@@ -47,7 +48,7 @@ namespace AutoSortVcxprojFilters
                 out pitemid,
                 out ppunkDocData);
 
-            if (fullDocumentName.EndsWith(@"vcxproj.filters"))
+            if (fullDocumentName.EndsWith(@"vcxproj.filters") || fullDocumentName.EndsWith(@"vcxproj"))
             {
                 VCXFilterSorter.Sort(fullDocumentName);
             }

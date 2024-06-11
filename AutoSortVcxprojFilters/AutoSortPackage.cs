@@ -73,11 +73,10 @@ namespace AutoSortVcxprojFilters
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             
             //Attach the OnSave event
-            var runningDocumentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
-            runningDocumentTable.AdviseRunningDocTableEvents(new SortFilterOnAfterSave(runningDocumentTable), out _);
+            // Uncomment this if you want to sort on save
+            //var runningDocumentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
+            //runningDocumentTable.AdviseRunningDocTableEvents(new SortFilterOnAfterSave(runningDocumentTable), out _);
             await SortAllCommand.InitializeAsync(this);
-
-
         }
         #endregion
     }

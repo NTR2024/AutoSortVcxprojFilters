@@ -94,6 +94,7 @@ namespace AutoSortVcxprojFilters
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
+            Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
             var projects = m_dte.Solution.Projects
                .Cast<EnvDTE.Project>()
                .Where(x => { return x?.Object != null; })
@@ -103,6 +104,7 @@ namespace AutoSortVcxprojFilters
             {
                 foreach (var proj in projects)
                 {
+                    VCXFilterSorter.Sort(proj.FullName);
                     VCXFilterSorter.Sort(proj.FullName + @".filters");
                 }
             }
