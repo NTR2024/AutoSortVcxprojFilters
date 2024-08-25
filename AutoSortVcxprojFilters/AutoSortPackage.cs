@@ -74,8 +74,8 @@ namespace AutoSortVcxprojFilters
             
             //Attach the OnSave event
             // Uncomment this if you want to sort on save
-            //var runningDocumentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
-            //runningDocumentTable.AdviseRunningDocTableEvents(new SortFilterOnAfterSave(runningDocumentTable), out _);
+            var runningDocumentTable = (IVsRunningDocumentTable)GetGlobalService(typeof(SVsRunningDocumentTable));
+            runningDocumentTable.AdviseRunningDocTableEvents(new SortFilterOnAfterSave(runningDocumentTable), out _);
             await SortAllCommand.InitializeAsync(this);
         }
         #endregion

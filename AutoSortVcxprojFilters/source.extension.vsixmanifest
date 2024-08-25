@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="AutoSortVcxprojFilters.Sander Cox.b6738a6b-ba4b-48e6-b4c2-d164eba03937" Version="1.0" Language="en-US" Publisher="Parallel Dimension" />
+        <Identity Id="AutoSortVcxprojFilters.Sander Cox.b6738a6b-ba4b-48e6-b4c2-d164eba03937" Version="1.1" Language="en-US" Publisher="Parallel Dimension" />
         <DisplayName>Auto-sort Vcxproj and Vcxproj.Filters</DisplayName>
         <Description xml:space="preserve">Automatically sort .vcxproj. and vcxproj.filters XML contents based on path. This solved issues with otherwise complicated 3-way merges that might occur when multiple people add files to the project.</Description>
     </Metadata>
@@ -20,6 +20,6 @@
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
     </Assets>
     <Prerequisites>
-        <Prerequisite Id="Microsoft.VisualStudio.Component.VC.CoreIde" Version="[15.0,)" DisplayName="C++ core features" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
     </Prerequisites>
 </PackageManifest>
